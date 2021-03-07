@@ -3,17 +3,17 @@ package com.avinash.springsecurityjwt.controller;
 import com.avinash.springsecurityjwt.model.AuthenticationRequest;
 import com.avinash.springsecurityjwt.model.AuthenticationResponse;
 import com.avinash.springsecurityjwt.service.MyUserDetailsService;
+import com.avinash.springsecurityjwt.service.PropertyConfiguration;
 import com.avinash.springsecurityjwt.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -27,6 +27,15 @@ public class MyController {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private Environment environment;
+
+    @Value("${app.username}")
+    private String propertyValue;
+
+    @Autowired
+    private PropertyConfiguration myConfig;
+
     /***
      *
      * User below header:
@@ -37,6 +46,39 @@ public class MyController {
     @RequestMapping(value = "/hello", method = RequestMethod.GET)
     public String Hello() {
         return "Hello Spring !";
+    }
+
+    /***
+     * Read application.properties using Environment class autowiring.
+     * @param key
+     * @return
+     */
+    @RequestMapping(value= "/readKeyUsingEnvironment", method = RequestMethod.GET)
+    public ResponseEntity<String> readKeyUsingEnvironment(@RequestParam(value = "name") String key){
+        String value="";
+        value = environment.getProperty(key);
+        return ResponseEntity.ok(value);
+    }
+
+    /***
+     * Read application.properties using Value annotation.
+     *
+     * @return
+     */
+    @RequestMapping(value= "/readKeyUsingValue", method = RequestMethod.GET)
+    public ResponseEntity<String> readKeyUsingValue(){
+
+        return ResponseEntity.ok(propertyValue);
+    }
+
+    /***
+     * Read application.properties using ConfigurationProperties class.
+     * @return
+     */
+    @RequestMapping(value= "/readKeyUsingConfiguration", method = RequestMethod.GET)
+    public ResponseEntity<String> readKeyUsingConfiguration(){
+        String username = myConfig.getUsername();
+        return ResponseEntity.ok(username);
     }
 
     /***
